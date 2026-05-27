@@ -1,0 +1,89 @@
+name: Build Mobile App
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+jobs:
+  build-android:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-linux-android,armv7-linux-androideabi,i686-linux-android,x86_64-linux-android
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Setup Android SDK & NDK
+        uses: android-actions/setup-android@v3
+
+      - name: Initialize Tauri Android
+        run: npx tauri android init --noprompt || true
+
+      - name: Build Android App (Unsigned APK)
+        run: npx tauri android build --no-bundle
+        env:
+          NDK_HOME: ${{ env.ANDROID_NDK_HOME }}
+
+      - name: Upload Android APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: CulinaryVitality-Android-APK
+          path: src-tauri/gen/android/app/build/outputs/apk/release/app-release-unsigned.apk
+
+  build-ios:
+    name: Build iOS Xcode Project
+    runs-on: macos-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-ios,x86_64-apple-ios
+
+      - name: Initialize Tauri iOS
+        run: npx tauri ios init --noprompt || true
+
+      - name: Build iOS App (Preparation)
+        run: npx tauri ios build --no-bundle
+
+      - name: Compress Xcode Project
+        run: tar -czf ios-xcode-project.tar.gz -C src-tauri/gen/apple/ .
+
+      - name: Upload iOS Xcode Project
+        uses: actions/upload-artifact@v4
+        with:
+          name: CulinaryVitality-iOS-XcodeProject
+          path: ios-xcode-project.tar.gz
