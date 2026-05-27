@@ -41,8 +41,8 @@ jobs:
       - name: Initialize Tauri Android
         run: npx tauri android init --noprompt || true
 
-      - name: Build Android App (Unsigned APK)
-        run: npx tauri android build
+      - name: Build Android App (Debug APK - Automatically Signed)
+        run: npx tauri android build --debug
         env:
           NDK_HOME: ${{ env.ANDROID_NDK_HOME }}
 
@@ -50,7 +50,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: CulinaryVitality-Android-APK
-          path: src-tauri/gen/android/app/build/outputs/apk/release/app-release-unsigned.apk
+          path: src-tauri/gen/android/app/build/outputs/apk/**/*.apk
 
   build-ios:
     name: Build iOS Xcode Project
