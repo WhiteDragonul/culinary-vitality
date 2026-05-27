@@ -22,7 +22,7 @@ jobs:
           cache: npm
 
       - name: Install Dependencies
-        run: npm ci
+        run: npm install
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
@@ -42,7 +42,7 @@ jobs:
         run: npx tauri android init --noprompt || true
 
       - name: Build Android App (Unsigned APK)
-        run: npx tauri android build --no-bundle
+        run: npx tauri android build
         env:
           NDK_HOME: ${{ env.ANDROID_NDK_HOME }}
 
@@ -66,7 +66,7 @@ jobs:
           cache: npm
 
       - name: Install Dependencies
-        run: npm ci
+        run: npm install
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
@@ -75,9 +75,6 @@ jobs:
 
       - name: Initialize Tauri iOS
         run: npx tauri ios init --noprompt || true
-
-      - name: Build iOS App (Preparation)
-        run: npx tauri ios build --no-bundle
 
       - name: Compress Xcode Project
         run: tar -czf ios-xcode-project.tar.gz -C src-tauri/gen/apple/ .
