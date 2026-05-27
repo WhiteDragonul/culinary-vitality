@@ -30,8 +30,7 @@ import {
   Book,
   CalendarDays as CalendarIcon,
   Trash,
-  Camera,
-  Upload
+  Camera
 } from "lucide-react";
 import "./App.css";
 import { WORLD_INGREDIENTS, generate200Recipes, translateIngredientName } from "./recipesData";
